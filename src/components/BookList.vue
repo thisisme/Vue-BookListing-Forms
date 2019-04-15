@@ -1,15 +1,16 @@
 <template>
   <div>
     <h1>{{title}}</h1>
-    <ul>
-      <book-item v-for='book in books' :key='book.id' :book='book'></book-item>
+    <input type="text" placeholder="Search Books" v-model="searchInput">
+    <ul class="exists">
+      <book-item v-for='book in searchedBooks' :key='book.id' :book='book'></book-item>
     </ul>
     <hr>
     <h2>Filtered Books By Ownership</h2>
-    <select name="" id="" v-model="holding">
-      <option value="" v-for="filter in filters">{{ filter }}</option>
+    <select v-model="holding">
+      <option v-for="filter in filters">{{ filter }}</option>
     </select>
-    <ul>
+    <ul class="exists">
       <book-item v-for='book in filteredBooks' :key='book.id' :book='book'></book-item>
     </ul>
     <br><hr>
@@ -30,6 +31,7 @@ export default {
       states: ["Want to Read", "Read", "Reading"],
       filters: ["bought", "borrowed"],
       holding: "bought",
+      searchInput: "",
       books: [
         { title: "Self-Reliance", author: "Ralph Waldo Emerson", finishedReading: true, ownership: "borrowed" },
         { title: "American Gods", author: "Neil Gaiman", finishedReading: false, ownership: "bought" },
@@ -44,6 +46,13 @@ export default {
   computed: {
     filteredBooks() {
       return _.filter(this.books, ["ownership", this.holding]);
+    },
+    searchedBooks() {
+      const searchFilter = book => {
+        return book.title.toLowerCase().match(this.searchInput.toLowerCase());
+      };
+
+      return _.filter(this.books, searchFilter);
     }
   },
   methods: {
